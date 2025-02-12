@@ -7,8 +7,8 @@
 </p>
 
 <p align="center">
-  <a href="./README.md">📖 EN</a>
-  <a href="./docs/README_zh.md">📖 繁體中文</a> |
+  <a href="./README.md">📖 EN</a> |
+  <a href="./docs/README_zh.md">📖 繁體中文</a>
 </p>
 
 <p align="center">
