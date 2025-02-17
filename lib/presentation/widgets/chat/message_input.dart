@@ -33,7 +33,7 @@ class _MessageInputState extends State<MessageInput> {
    * _selectedFiles: 儲存已選擇的圖片（base64格式）
    * _isUploading: 標記是否正在上傳圖片
    */
-  final _controller = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
   final _imagePicker = ImagePicker();
   List<String> _selectedFiles = [];
   bool _isUploading = false;
@@ -88,25 +88,23 @@ class _MessageInputState extends State<MessageInput> {
     });
   }
 
-  /** 
-   * _sendMessage 方法處理訊息發送
-   * 檢查是否有文字或圖片要發送
-   * 使用 ChatBloc 發送訊息事件
-   */
-  void _sendMessage() {
-    final message = _controller.text.trim();
-    if (message.isNotEmpty || _selectedFiles.isNotEmpty) {
-      context.read<ChatBloc>().add(
-            SendMessage(
-              message: message,
-              files: _selectedFiles,
-            ),
-          );
-      _controller.clear();
-      setState(() {
-        _selectedFiles = [];
-      });
-    }
+  void _handleSubmit() {
+    if (_controller.text.trim().isEmpty) return;
+
+    // 收起鍵盤
+    FocusScope.of(context).unfocus();
+
+    // 發送訊息
+    context.read<ChatBloc>().add(SendMessage(
+          message: _controller.text,
+          files: _selectedFiles.isNotEmpty ? _selectedFiles : null,
+        ));
+
+    // 清空輸入框和已選檔案
+    _controller.clear();
+    setState(() {
+      _selectedFiles = [];
+    });
   }
 
   @override
@@ -118,10 +116,10 @@ class _MessageInputState extends State<MessageInput> {
     return Container(
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         border: Border(
           top: BorderSide(
-            color: Colors.grey.shade300,
+            color: Theme.of(context).dividerColor,
           ),
         ),
       ),
@@ -158,8 +156,9 @@ class _MessageInputState extends State<MessageInput> {
                           strokeWidth: 2,
                         ),
                       )
-                    : const Icon(Icons.attach_file),
-                onPressed: _isUploading ? null : _pickImage,
+                    : const Icon(Icons.add_photo_alternate_outlined),
+                onPressed: _pickImage,
+                tooltip: '附加圖片',
               ),
               /** 
                * Expanded 讓文字輸入框佔據剩餘的水平空間
@@ -169,9 +168,12 @@ class _MessageInputState extends State<MessageInput> {
                   controller: _controller,
                   decoration: const InputDecoration(
                     hintText: '輸入訊息...',
-                    border: OutlineInputBorder(),
+                    border: InputBorder.none,
                   ),
-                  maxLines: null, // null 表示可以多行輸入
+                  minLines: 1,
+                  maxLines: 5,
+                  textInputAction: TextInputAction.send,
+                  onSubmitted: (_) => _handleSubmit(),
                 ),
               ),
               const SizedBox(width: 8), // 間距
@@ -180,7 +182,8 @@ class _MessageInputState extends State<MessageInput> {
                */
               IconButton(
                 icon: const Icon(Icons.send),
-                onPressed: _sendMessage,
+                onPressed: _handleSubmit,
+                tooltip: '發送',
               ),
             ],
           ),

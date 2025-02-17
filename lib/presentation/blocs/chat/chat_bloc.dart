@@ -104,19 +104,39 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
         // 處理 chat_info 類型的訊息
         if (assistantMessage.type == 'chat_info') {
-          // 更新當前對話資訊
+          // 檢查是否為新對話
+          final isNewChat = _currentChatId == null || _currentChatId!.isEmpty;
           _currentChatId = assistantMessage.chatId;
-          _currentChat = ChatHistory(
+
+          // 建立新的歷史記錄
+          final newChat = ChatHistory(
             id: assistantMessage.chatId,
             title: assistantMessage.title ?? 'New Chat',
             createdAt: DateTime.now(),
           );
+          _currentChat = newChat;
 
-          // 發出更新後的狀態
+          // 只有在新對話時才更新歷史記錄列表
+          if (isNewChat && _chatHistory != null) {
+            // 確保不會重複添加
+            if (!_chatHistory!.any((chat) => chat.id == newChat.id)) {
+              _chatHistory = [newChat, ..._chatHistory!];
+            }
+          } else if (_chatHistory != null) {
+            // 如果是現有對話，更新標題
+            _chatHistory = _chatHistory!.map((chat) {
+              if (chat.id == newChat.id) {
+                return newChat;
+              }
+              return chat;
+            }).toList();
+          }
+
           if (state is ChatSuccess) {
             emit((state as ChatSuccess).copyWith(
               currentChatId: _currentChatId,
               currentChat: _currentChat,
+              chatHistory: _chatHistory,
             ));
           }
           continue;
