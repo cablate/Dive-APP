@@ -131,6 +131,7 @@ class ChatApiProvider {
                       content: '',
                       role: 'assistant',
                       type: 'chat_info',
+                      title: content['title'],
                     )
                   ];
                   break;

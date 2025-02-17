@@ -57,13 +57,7 @@ class ChatSuccess extends ChatState {
   });
 
   @override
-  List<Object?> get props => [
-        messages,
-        currentChatId,
-        isLoading,
-        chatHistory,
-        currentChat,
-      ];
+  List<Object?> get props => [messages, isLoading, currentChat];
 
   ChatSuccess copyWith({
     List<ChatMessage>? messages,

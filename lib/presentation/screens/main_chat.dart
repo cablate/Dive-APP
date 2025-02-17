@@ -106,15 +106,24 @@ class _ChatScreenState extends State<ChatScreen> {
                                       icon: const Icon(Icons.menu_rounded),
                                       onPressed: _toggleSidebar,
                                     ),
-                                  const SizedBox(width: 16),
-                                  Text(
-                                    state.currentChat?.title ?? 'Dive',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      state.currentChat?.title ?? 'Dive',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                                  const Spacer(),
+                                  IconButton(
+                                    icon: const Icon(Icons.build),
+                                    tooltip: '可用工具',
+                                    onPressed: () {
+                                      Navigator.pushNamed(context, '/tools');
+                                    },
+                                  ),
                                   if (state.currentChat != null)
                                     IconButton(
                                       icon: const Icon(Icons.note_add_outlined),
@@ -172,6 +181,14 @@ class _ChatScreenState extends State<ChatScreen> {
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                   ),
+                                ),
+                                const Spacer(),
+                                IconButton(
+                                  icon: const Icon(Icons.build),
+                                  tooltip: '可用工具',
+                                  onPressed: () {
+                                    Navigator.pushNamed(context, '/tools');
+                                  },
                                 ),
                               ],
                             ),

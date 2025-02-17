@@ -11,6 +11,7 @@ class ChatMessageModel extends ChatMessage {
     super.type = 'text',
     super.toolCalls,
     super.toolResult,
+    super.title = 'New Chat',
   });
 
   factory ChatMessageModel.fromJson(Map<String, dynamic> json) {

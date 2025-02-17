@@ -104,11 +104,21 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
         // 處理 chat_info 類型的訊息
         if (assistantMessage.type == 'chat_info') {
-          add(UpdateChatInfo(
-            chatId: assistantMessage.chatId,
-            title: assistantMessage.title ?? 'New Chat',
-          ));
+          // 更新當前對話資訊
           _currentChatId = assistantMessage.chatId;
+          _currentChat = ChatHistory(
+            id: assistantMessage.chatId,
+            title: assistantMessage.title ?? 'New Chat',
+            createdAt: DateTime.now(),
+          );
+
+          // 發出更新後的狀態
+          if (state is ChatSuccess) {
+            emit((state as ChatSuccess).copyWith(
+              currentChatId: _currentChatId,
+              currentChat: _currentChat,
+            ));
+          }
           continue;
         }
 
