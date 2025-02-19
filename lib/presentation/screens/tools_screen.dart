@@ -26,6 +26,15 @@ class _ToolsScreenState extends State<ToolsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('可用工具'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.pushNamed(context, '/tool-config');
+            },
+            tooltip: '工具配置',
+          ),
+        ],
       ),
       body: FutureBuilder<List<Tool>>(
         future: _toolsFuture,

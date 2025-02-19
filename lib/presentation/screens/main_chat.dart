@@ -124,6 +124,13 @@ class _ChatScreenState extends State<ChatScreen> {
                                       Navigator.pushNamed(context, '/tools');
                                     },
                                   ),
+                                  IconButton(
+                                    icon: const Icon(Icons.settings),
+                                    tooltip: '工具配置',
+                                    onPressed: () {
+                                      Navigator.pushNamed(context, '/tool-config');
+                                    },
+                                  ),
                                   if (state.currentChat != null)
                                     IconButton(
                                       icon: const Icon(Icons.note_add_outlined),
@@ -188,6 +195,13 @@ class _ChatScreenState extends State<ChatScreen> {
                                   tooltip: '可用工具',
                                   onPressed: () {
                                     Navigator.pushNamed(context, '/tools');
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.settings),
+                                  tooltip: '工具配置',
+                                  onPressed: () {
+                                    Navigator.pushNamed(context, '/tool-config');
                                   },
                                 ),
                               ],

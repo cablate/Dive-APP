@@ -6,6 +6,7 @@ import 'domain/repositories/chat_repository.dart';
 import 'presentation/blocs/chat/chat_bloc.dart';
 import 'presentation/screens/main_chat.dart';
 import 'presentation/screens/tools_screen.dart';
+import 'presentation/screens/tool_config_screen.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -49,6 +50,7 @@ class App extends StatelessWidget {
           home: const ChatScreen(),
           routes: {
             '/tools': (context) => const ToolsScreen(),
+            '/tool-config': (context) => const ToolConfigScreen(),
           },
         ),
       ),
