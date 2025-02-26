@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../data/models/tool_config.dart';
 
 class ToolConfigEditor extends StatefulWidget {
@@ -22,15 +23,34 @@ class _ToolConfigEditorState extends State<ToolConfigEditor> {
   late TextEditingController _commandController;
   late List<String> _args;
   late Map<String, String> _env;
+  late List<TextEditingController> _argControllers;
+  late Map<String, (TextEditingController, TextEditingController)>
+      _envControllers;
   late bool _enabled;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.initialConfig?.name ?? '');
-    _commandController = TextEditingController(text: widget.initialConfig?.command ?? '');
+    _nameController =
+        TextEditingController(text: widget.initialConfig?.name ?? '');
+    _commandController =
+        TextEditingController(text: widget.initialConfig?.command ?? '');
     _args = List.from(widget.initialConfig?.args ?? []);
+    _argControllers =
+        _args.map((arg) => TextEditingController(text: arg)).toList();
+
     _env = Map.from(widget.initialConfig?.env ?? {});
+    _envControllers = Map.fromEntries(
+      _env.entries.map(
+        (e) => MapEntry(
+          e.key,
+          (
+            TextEditingController(text: e.key),
+            TextEditingController(text: e.value)
+          ),
+        ),
+      ),
+    );
     _enabled = widget.initialConfig?.enabled ?? true;
   }
 
@@ -38,12 +58,20 @@ class _ToolConfigEditorState extends State<ToolConfigEditor> {
   void dispose() {
     _nameController.dispose();
     _commandController.dispose();
+    for (var controller in _argControllers) {
+      controller.dispose();
+    }
+    for (var controllers in _envControllers.values) {
+      controllers.$1.dispose();
+      controllers.$2.dispose();
+    }
     super.dispose();
   }
 
   void _addArg() {
     setState(() {
       _args.add('');
+      _argControllers.add(TextEditingController());
     });
   }
 
@@ -56,18 +84,32 @@ class _ToolConfigEditorState extends State<ToolConfigEditor> {
   void _removeArg(int index) {
     setState(() {
       _args.removeAt(index);
+      _argControllers[index].dispose();
+      _argControllers.removeAt(index);
     });
   }
 
   void _addEnvironment() {
     setState(() {
-      _env[''] = '';
+      const newKey = '';
+      _env[newKey] = '';
+      _envControllers[newKey] = (
+        TextEditingController(),
+        TextEditingController(),
+      );
     });
   }
 
   void _updateEnvironment(String oldKey, String newKey, String value) {
     setState(() {
-      _env.remove(oldKey);
+      if (oldKey != newKey) {
+        _env.remove(oldKey);
+        final controllers = _envControllers[oldKey];
+        if (controllers != null) {
+          _envControllers.remove(oldKey);
+          _envControllers[newKey] = controllers;
+        }
+      }
       _env[newKey] = value;
     });
   }
@@ -75,6 +117,12 @@ class _ToolConfigEditorState extends State<ToolConfigEditor> {
   void _removeEnvironment(String key) {
     setState(() {
       _env.remove(key);
+      final controllers = _envControllers[key];
+      if (controllers != null) {
+        controllers.$1.dispose();
+        controllers.$2.dispose();
+        _envControllers.remove(key);
+      }
     });
   }
 
@@ -179,10 +227,8 @@ class _ToolConfigEditorState extends State<ToolConfigEditor> {
                       labelText: '參數值',
                       border: OutlineInputBorder(),
                     ),
-                    controller: TextEditingController(text: arg)
-                      ..addListener(() {
-                        _updateArg(index, arg);
-                      }),
+                    controller: _argControllers[index],
+                    onChanged: (value) => _updateArg(index, value),
                   ),
                 ),
                 IconButton(
@@ -233,10 +279,9 @@ class _ToolConfigEditorState extends State<ToolConfigEditor> {
                       labelText: '${title}名稱',
                       border: const OutlineInputBorder(),
                     ),
-                    controller: TextEditingController(text: entry.key)
-                      ..addListener(() {
-                        onUpdate(entry.key, entry.key, entry.value);
-                      }),
+                    controller: _envControllers[entry.key]?.$1,
+                    onChanged: (value) =>
+                        _updateEnvironment(entry.key, value, entry.value),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -246,10 +291,9 @@ class _ToolConfigEditorState extends State<ToolConfigEditor> {
                       labelText: '${title}值',
                       border: const OutlineInputBorder(),
                     ),
-                    controller: TextEditingController(text: entry.value)
-                      ..addListener(() {
-                        onUpdate(entry.key, entry.key, entry.value);
-                      }),
+                    controller: _envControllers[entry.key]?.$2,
+                    onChanged: (value) =>
+                        _updateEnvironment(entry.key, entry.key, value),
                   ),
                 ),
                 IconButton(
@@ -264,4 +308,4 @@ class _ToolConfigEditorState extends State<ToolConfigEditor> {
       ],
     );
   }
-} 
+}
